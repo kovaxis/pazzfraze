@@ -2,7 +2,7 @@
 
 let pass_gen;
 
-wasm_bindgen("./wasm_bg.wasm")
+wasm_bindgen("./pkg/wasm_bg.wasm")
     .then(() => {
         const {gen} = wasm_bindgen;
         pass_gen=gen;
