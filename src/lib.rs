@@ -33,7 +33,7 @@ impl WordList {
     }
     pub fn word(&self, idx: usize) -> &str {
         let (start, len) = self.words[idx];
-        &self.text[start..start+len]
+        &self.text[start..start + len]
     }
 }
 
@@ -97,7 +97,7 @@ fn secure_hash(master: &[u8], domain: &[u8]) -> [u8; 64] {
     //Hash the master password a few thousand times
     hasher.input(SALT);
     hasher.input(master);
-    let mut master_hash=get_hash(&mut hasher);
+    let mut master_hash = get_hash(&mut hasher);
     for i in 0..25_000_u32 {
         //Generate salt
         hasher.input(SALT);
@@ -107,13 +107,13 @@ fn secure_hash(master: &[u8], domain: &[u8]) -> [u8; 64] {
         hasher.input(&salt[..]);
         hasher.input(&master_hash[..]);
         hasher.input(master);
-        master_hash=get_hash(&mut hasher);
+        master_hash = get_hash(&mut hasher);
     }
     //Hash both master and domain a few thousand times
     hasher.input(SALT);
     hasher.input(domain);
     hasher.input(master);
-    let mut final_hash=get_hash(&mut hasher);
+    let mut final_hash = get_hash(&mut hasher);
     for i in 0..25_000_u32 {
         //Generate salt for this iteration
         hasher.input(&i.to_be_bytes());
@@ -125,7 +125,7 @@ fn secure_hash(master: &[u8], domain: &[u8]) -> [u8; 64] {
         hasher.input(&master_hash[..]);
         hasher.input(master);
         hasher.input(domain);
-        final_hash=get_hash(&mut hasher);
+        final_hash = get_hash(&mut hasher);
     }
     //Hopefully this algorithm is slow enough
     final_hash
@@ -156,7 +156,7 @@ impl<'a> Config<'a> {
         .with_entropy(DEFAULT_ENTROPY)
     }
     pub fn with_word_list<'b>(self, word_list: &'b WordList) -> Config<'b> {
-        Config{
+        Config {
             word_list,
             word_count: self.word_count,
             style: self.style,
