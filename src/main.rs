@@ -1,4 +1,4 @@
-use std::{env, fs};
+use std::{env, fs, time::Instant};
 use pazzfraze::{WordList, Config};
 
 fn print_usage() {
@@ -98,8 +98,11 @@ fn main() {
         }
     }
     //Generate password
+    let start=Instant::now();
     let password = conf.gen(master.as_bytes(), domain.as_bytes());
-    eprintln!("Generated password with {} bits of entropy:", (conf.entropy()*10.0).floor()/10.0);
+    let finish=Instant::now();
+    let time_taken=finish-start;
+    eprintln!("Generated password with {} bits of entropy in {}ms:", (conf.entropy()*10.0).floor()/10.0, time_taken.as_millis());
     println!("{}", password);
     eprintln!("Remember to clear the terminal afterwards");
 }

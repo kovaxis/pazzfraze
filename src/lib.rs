@@ -5,6 +5,7 @@ use rand_chacha::ChaChaRng;
 use sha2::{Digest, Sha512};
 
 const DEFAULT_ENTROPY: f64 = 48.0;
+const SALT: &'static [u8] = b"\x8e\xbf\x78\x79\xc9\xe9\xac\xe7\x91\xb6\xb4\xc9\x2b\x9b\x50\xe7\x60\xe5\x76\x01\x73\x59\x49\x9c\x74\x18\x4e\x01\x38\xcc\x7c\x69\x03\x46\x9d\xc1\xbd\xf0\x28\x99\xab\xa9\xda\xf2\x82\x0b\xbe\x3d\xc4\x8c\xea\x56\x03\x35\x6c\xa3\x05\x86\x59\x9e\xec\xe8\xbe\xa4";
 
 /// A list of words to choose from when generating passwords.
 #[derive(Debug, Clone)]
@@ -85,6 +86,51 @@ impl Style {
     }
 }
 
+fn get_hash(hasher: &mut Sha512) -> [u8; 64] {
+    let mut hash = [0; 64];
+    hash.copy_from_slice(&hasher.result_reset());
+    hash
+}
+
+fn secure_hash(master: &[u8], domain: &[u8]) -> [u8; 64] {
+    let mut hasher = Sha512::new();
+    //Hash the master password a few thousand times
+    hasher.input(SALT);
+    hasher.input(master);
+    let mut master_hash=get_hash(&mut hasher);
+    for i in 0..25_000_u32 {
+        //Generate salt
+        hasher.input(SALT);
+        hasher.input(&i.to_le_bytes()[..]);
+        let salt = get_hash(&mut hasher);
+        //Feed in previous hash, salt and master password to modify hash
+        hasher.input(&salt[..]);
+        hasher.input(&master_hash[..]);
+        hasher.input(master);
+        master_hash=get_hash(&mut hasher);
+    }
+    //Hash both master and domain a few thousand times
+    hasher.input(SALT);
+    hasher.input(domain);
+    hasher.input(master);
+    let mut final_hash=get_hash(&mut hasher);
+    for i in 0..25_000_u32 {
+        //Generate salt for this iteration
+        hasher.input(&i.to_be_bytes());
+        hasher.input(SALT);
+        let salt = get_hash(&mut hasher);
+        //Feed in previous hash, salt and both master and domain in order to modify hash
+        hasher.input(&salt[..]);
+        hasher.input(&final_hash[..]);
+        hasher.input(&master_hash[..]);
+        hasher.input(master);
+        hasher.input(domain);
+        final_hash=get_hash(&mut hasher);
+    }
+    //Hopefully this algorithm is slow enough
+    final_hash
+}
+
 /// The necessary configuration to generate a password.
 ///
 /// Currently consisting of:
@@ -151,14 +197,7 @@ impl<'a> Config<'a> {
     }
     pub fn gen(&self, master: &[u8], domain: &[u8]) -> String {
         //Hash the master password and the domain together
-        let hash = {
-            let mut hasher = Sha512::new();
-            hasher.input(master);
-            hasher.input(domain);
-            let mut hash = [0; 64];
-            hash.copy_from_slice(&hasher.result());
-            hash
-        };
+        let hash = secure_hash(master, domain);
         //Use this hash to seed an RNG
         let mut rng = {
             const SEED_LEN: usize = 32;

@@ -15,8 +15,10 @@ window.addEventListener('load', () => {
     const output = document.getElementById("password");
     button.addEventListener('click', () => {
         if (pass_gen) {
-            console.log("Generating password");
+            const start = performance.now();
             output.innerText=pass_gen(master.value, domain.value);
+            const finish = performance.now();
+            console.log("Generated password in "+(finish-start)+"ms");
         } else {
             console.log("Pazzfraze WASM module not loaded yet");
         }
