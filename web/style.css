@@ -1,0 +1,27 @@
+body {
+    text-align: center;
+    background-color:      #fbeee6   ;
+}
+
+h1 {
+    font-family: helvetica;
+}
+
+h3 {
+    font-family: helvetica;
+}
+
+.form {
+    border-radius: 10px;
+    width: 80%;
+    margin: 0 auto;
+    padding: 40px 40px;
+    background-color:  #fdfefe ;
+}
+
+.password-show {
+    background-color:   #f2f3f4  ;
+    border-radius: 4px;
+    width: 30%;
+    margin: 0px auto;
+}
