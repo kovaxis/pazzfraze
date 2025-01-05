@@ -2,7 +2,7 @@
 
 Generate simple [XKCD-style](https://xkcd.com/936/) passwords using a master
 password and a domain name. Available as a GitHub page at
-[negamartin.github.io/pazzfraze](https://negamartin.github.io/pazzfraze).
+[kovaxis.github.io/pazzfraze](https://kovaxis.github.io/pazzfraze).
 
 This means that as long as you use the generated passwords frequently, you will
 remember both the master password *and* some of the generated passwords (at
